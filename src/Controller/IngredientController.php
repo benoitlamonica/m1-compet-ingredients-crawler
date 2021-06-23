@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Ingredient;
 use App\Entity\Plate;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Asset\Package;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +20,6 @@ class IngredientController extends AbstractController
     /**
      * @Route("/ingredient", name="ingredient")
      */
-  
     public function getAllIngredients(SerializerInterface $serializer): Response
     {
         //Serializer

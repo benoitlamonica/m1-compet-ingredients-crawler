@@ -53,7 +53,9 @@ class IngredientRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('i')
             ->andWhere('i.type = :val')
+            ->andWhere('i.ing_img <> :val2')
             ->setParameter('val', $type)
+            ->setParameter('val2', "")
             ->getQuery()
             ->getResult()
         ;

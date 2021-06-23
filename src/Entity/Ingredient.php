@@ -40,6 +40,12 @@ class Ingredient
      */
     private $type;
 
+    /**
+     * @Groups({"ing"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $ing_img;
+
     public function __construct()
     {
         $this->Plate = new ArrayCollection();
@@ -94,6 +100,18 @@ class Ingredient
     public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getIngImg(): ?string
+    {
+        return $this->ing_img;
+    }
+
+    public function setIngImg(?string $ing_img): self
+    {
+        $this->ing_img = $ing_img;
 
         return $this;
     }

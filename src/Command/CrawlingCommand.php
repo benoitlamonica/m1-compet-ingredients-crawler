@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Panther\Client;
 
 class CrawlingCommand extends Command
@@ -34,7 +35,7 @@ class CrawlingCommand extends Command
         "Cabillaud",
         "Escalope de veau",
         "Prosciutto",
-        "Crevettes",
+        "Crevette",
         "Perche du Nil",
         "Lieu jaune",
         "Dinde",
@@ -47,6 +48,21 @@ class CrawlingCommand extends Command
     {
         parent::__construct();
         $this->em = $em;
+        $finder = new Finder();
+
+        //ing
+        $files = $finder->files()->in('src/Command/json/ing');
+        foreach($files as $file) {
+            $fileContent = $file->getContents();
+        }
+        $this->jsonIng = json_decode($fileContent);
+
+        //plate
+        $files = $finder->files()->in('src/Command/json/plate');
+        foreach($files as $file) {
+            $fileContent = $file->getContents();
+        }
+        $this->jsonPlate = json_decode($fileContent);
     }
     
     protected function configure(): void
@@ -108,6 +124,7 @@ class CrawlingCommand extends Command
                 $ingArray = $object['ingredients'];
                 $newPlate = new Plate();
                 $newPlate->setName($plate);
+                $newPlate->setImgUrl($this->jsonPlate->{$plate});
                 foreach($ingArray as $ing) {
                     $ingWithoutS = substr($ing, 0 , strlen($ing) - 1);
                     $ingWithS = $ing . 's';
@@ -119,11 +136,12 @@ class CrawlingCommand extends Command
                     $ingFinded = $ingFinded === null ? $securePlural2 : $ingFinded;
                     if($ingFinded === null && $securePlural === null && $securePlural2 === null) {
                         $type = in_array($ing, $this->listProt) ? "Principaux" : "Condiments";
-                        
+                        $img = isset($this->jsonIng->{$ing}) ? $this->jsonIng->{$ing} : "";
                         $newIng = new Ingredient();
                         $newIng->setName($ing);
                         $newIng->setType($type);
                         $newIng->addPlate($newPlate);
+                        $newIng->setIngImg($img);
                         $this->em->persist($newIng);
                         $ingFinded = $newIng;
                     }
@@ -145,6 +163,7 @@ class CrawlingCommand extends Command
             $io->text('
                 Nom du plat : '. $object['plateName'] . "\n" .'Ingrédients : '. var_dump($object['ingredients']));
         }
+        $io->success('Tout est ok !');
 
         return Command::SUCCESS;
     }

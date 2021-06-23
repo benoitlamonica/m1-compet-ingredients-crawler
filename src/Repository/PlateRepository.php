@@ -39,7 +39,9 @@ class PlateRepository extends ServiceEntityRepository
     
     public function getPlateByIndredients($value): Array
     {
-
+        if(count($value) < 2) {
+            return [];
+        }
         $query =  $this->createQueryBuilder('p')
             ->join('p.ingredients', 'ingredient');
         foreach($value as $id) {
@@ -49,5 +51,37 @@ class PlateRepository extends ServiceEntityRepository
         return $query->getQuery()
                     ->getResult()
         ;
+    }
+
+    public function getPlateByIndredientsUnique($value): Array
+    {
+        $baseArray = [];
+
+        foreach($value as $i => $id) {
+            $compareArray = [];
+            $query =  $this->createQueryBuilder('p')
+                ->join('p.ingredients', 'ingredient')
+                ->andWhere('ingredient.id = :val')
+                ->setParameter('val', $id)
+                ->getQuery()
+                ->getResult();
+            foreach($query as $plate) {
+                if($i === 0) {
+                    array_push($baseArray, $plate);
+                    continue;
+                }
+                array_push($compareArray, $plate);
+
+            }
+            if($i === 0) continue;
+            foreach($baseArray as $plateBase) {
+                if(!in_array($plateBase, $compareArray)) {
+                    unset($baseArray[array_search($plateBase,$baseArray)]);
+                }
+            }
+        }
+
+        
+        return $baseArray;
     }
 }
